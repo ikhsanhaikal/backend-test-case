@@ -1,9 +1,11 @@
 import { Controller, Get } from '@nestjs/common';
 import { Book } from './books.entity';
 import { ApiInternalServerErrorResponse, ApiResponse } from '@nestjs/swagger';
+import { BooksService } from './books.service';
 
 @Controller('books')
 export class BooksController {
+  constructor(private booksService: BooksService) {}
   @Get()
   @ApiResponse({
     status: 200,
@@ -13,6 +15,6 @@ export class BooksController {
   })
   @ApiInternalServerErrorResponse()
   async findAll(): Promise<Array<Book>> {
-    return [];
+    return this.booksService.findAll();
   }
 }
