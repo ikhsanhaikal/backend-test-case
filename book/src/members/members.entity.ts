@@ -1,4 +1,4 @@
-import { Book } from 'src/books/books.entity';
+import { MembersAndBooks } from 'src/members-and-books/members-and-books.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ name: 'members' })
@@ -12,9 +12,9 @@ export class Member {
   @Column()
   name: string;
 
-  @OneToMany(() => Book, (book) => book.member, {
-    cascade: true,
-    onDelete: 'CASCADE',
-  })
-  books: Array<Book>;
+  @Column({ nullable: true })
+  penalized: Date;
+
+  @OneToMany(() => MembersAndBooks, (memberAndBook) => memberAndBook.member)
+  public memberAndBook: MembersAndBooks[];
 }

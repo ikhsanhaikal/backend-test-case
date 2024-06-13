@@ -1,11 +1,6 @@
-import { Member } from 'src/members/members.entity';
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { ApiHideProperty } from '@nestjs/swagger';
+import { MembersAndBooks } from 'src/members-and-books/members-and-books.entity';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ name: 'books' })
 export class Book {
@@ -21,10 +16,10 @@ export class Book {
   @Column()
   author: string;
 
-  @Column()
-  stock: number;
+  // @Column()
+  // stock: number;
 
-  @ManyToOne(() => Member, (user) => user.books)
-  @JoinColumn({ name: 'member_id' })
-  member: Member;
+  @ApiHideProperty()
+  @OneToMany(() => MembersAndBooks, (memberAndBook) => memberAndBook.book)
+  public memberAndBook: MembersAndBooks[];
 }

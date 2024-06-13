@@ -1,35 +1,71 @@
-import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  NotFoundException,
+  Param,
+  ParseIntPipe,
+  // NotFoundException,
+  // Param,
+  // ParseIntPipe,
+} from '@nestjs/common';
 import { Member } from './members.entity';
 import {
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
+  // ApiNotFoundResponse,
   ApiOkResponse,
+  ApiTags,
 } from '@nestjs/swagger';
 import { MembersService } from './members.service';
-
+import { Book } from 'src/books/books.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { MembersAndBooks } from 'src/members-and-books/members-and-books.entity';
+class GetMemberByIdResponse {
+  member: Member;
+  books: Book[];
+}
 @Controller({ path: 'members' })
 export class MembersController {
-  constructor(private membersService: MembersService) {}
+  constructor(
+    @InjectRepository(Book)
+    private membersAndBooks: Repository<MembersAndBooks>,
+    private membersService: MembersService,
+  ) {}
 
-  @ApiOkResponse()
-  @ApiInternalServerErrorResponse()
+  @ApiTags('List all members along with their books')
+  @Get()
+  @ApiOkResponse({ description: 'ok' })
+  @ApiInternalServerErrorResponse({ description: 'server crash' })
   async findAll(): Promise<Member[] | null> {
-    try {
-      return await this.membersService.findAll();
-    } catch (error) {
-      return null;
-    }
+    const response = await this.membersService.findAll();
+    return response;
   }
 
+  @ApiTags('Get a member by id along with current borrowed books')
   @Get(':id')
-  @ApiOkResponse()
-  @ApiInternalServerErrorResponse()
+  @ApiOkResponse({
+    description: 'Member yang dicari exist dan dikembalikan',
+    type: GetMemberByIdResponse,
+  })
   @ApiNotFoundResponse({ description: 'No member was found given the id' })
-  async findOne(@Param('id', ParseIntPipe) id: number): Promise<Member | null> {
-    try {
-      return await this.membersService.findOne(id);
-    } catch (error) {
-      return null;
+  @ApiInternalServerErrorResponse({
+    description: 'server crash',
+  })
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    const member = await this.membersService.findOne(id);
+    if (!member) {
+      throw new NotFoundException(`Member with ID ${id} not found`);
     }
+    const books = await this.membersAndBooks
+      .createQueryBuilder('c')
+      .select(['b.id', 'b.title', 'b.author', 'b.code'])
+      .leftJoin(Member, 'm', 'm.id = c.memberId')
+      .leftJoinAndSelect(Book, 'b', 'b.id = c.bookId')
+      .where('c.date_returned IS NULL')
+      // .orWhere('c.id IS NULL')
+      .getMany();
+
+    return { member, books };
   }
 }

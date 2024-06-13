@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Member } from './members.entity';
 import { Repository } from 'typeorm';
+import { MembersAndBooks } from 'src/members-and-books/members-and-books.entity';
 
 @Injectable()
 export class MembersService {
@@ -11,7 +12,16 @@ export class MembersService {
   ) {}
 
   async findAll(): Promise<Member[]> {
-    return await this.membersRepository.find({});
+    const memberAlongWithTheirBorrowedBooks = await this.membersRepository
+      .createQueryBuilder('members')
+      .addSelect('COUNT(c.memberId)', 'current_book_borrowed')
+      .where('c.date_returned IS NULL')
+      .orWhere('c.id IS NULL')
+      .leftJoin(MembersAndBooks, 'c', 'c.memberId = members.id')
+      .groupBy('members.id')
+      .getRawMany();
+
+    return memberAlongWithTheirBorrowedBooks;
   }
 
   async findOne(id: number): Promise<Member | null> {

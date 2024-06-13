@@ -15,11 +15,11 @@
   - [ ] The returned book is a book that the member has borrowed
   - [ ] If the book is returned after more than 7 days, the member will be subject to a penalty. Member with penalty cannot able to borrow the book for 3 days
 - Check the book
-  - [ ] Shows all existing books and quantities
-  - [ ] Books that are being borrowed are not counted
+  - [x] Shows all existing books and quantities
+  - [x] Books that are being borrowed are not counted
 - Member check
-  - [ ] Shows all existing members
-  - [ ] The number of books being borrowed by each member
+  - [x] Shows all existing members
+  - [x] The number of books being borrowed by each member
 
 ## Mock Data
 
@@ -81,10 +81,10 @@
 
 ## Requirements
 
-- [ ] it should be use any framework, but prefered [NestJS](https://nestjs.com/) Framework Or [ExpressJS](https://expressjs.com/)
-- [ ] it should be use Swagger as API Documentation
-- [ ] it should be use Database (SQL/NoSQL)
-- [ ] it should be open sourced on your github repo
+- [x] it should be use any framework, but prefered [NestJS](https://nestjs.com/) Framework Or [ExpressJS](https://expressjs.com/)
+- [x] it should be use Swagger as API Documentation
+- [x] it should be use Database (SQL/NoSQL)
+- [x] it should be open sourced on your github repo
 
 ## Extras
 
@@ -130,7 +130,9 @@ OUTPUT = [1, 0, 2] karena kata 'bbb' terdapat 1 pada INPUT, kata 'ac' tidak ada 
 Contoh:
 
 ```
-Matrix = [[1, 2, 0], [4, 5, 6], [7, 8, 9]]
+Matrix = [[1, 2, 0],
+          [4, 5, 6],
+          [7, 8, 9]]
 
 diagonal pertama = 1 + 5 + 9 = 15
 diagonal kedua = 0 + 5 + 7 = 12
