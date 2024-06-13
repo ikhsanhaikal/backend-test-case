@@ -14,10 +14,18 @@ export class MembersService {
   async findAll(): Promise<Member[]> {
     const memberAlongWithTheirBorrowedBooks = await this.membersRepository
       .createQueryBuilder('members')
-      .addSelect('COUNT(c.memberId)', 'current_book_borrowed')
-      .where('c.date_returned IS NULL')
-      .orWhere('c.id IS NULL')
+      .select([
+        'members.id as id',
+        'members.code as code',
+        'members.name as name',
+        'members.penalized as penalized',
+      ])
+      .addSelect(
+        'COUNT(CASE WHEN c.date_returned IS NULL THEN 1 END)',
+        'current_book_borrowed',
+      )
       .leftJoin(MembersAndBooks, 'c', 'c.memberId = members.id')
+      // .where('c.date_returned IS NULL')
       .groupBy('members.id')
       .getRawMany();
 

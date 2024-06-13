@@ -11,20 +11,32 @@ export class BooksService {
     private booksRepository: Repository<Book>,
   ) {}
 
-  async findAll(): Promise<Array<Book>> {
+  async findAll(): Promise<Array<any>> {
     const books = await this.booksRepository
-      .createQueryBuilder('books')
-      .select('books.title', 'title')
-      .addSelect('books.code', 'code')
-      .addSelect('books.author', 'author')
-      .leftJoin(MembersAndBooks, 'c', 'c.bookId = books.id')
-      // .where('c.id IS NULL')
-      .addSelect('COUNT(CASE WHEN c.bookId IS NULL THEN 1 END)', 'stock')
-      .groupBy('books.code')
-      .addGroupBy('books.title')
-      .addGroupBy('books.author')
+      .createQueryBuilder('book')
+      .select([
+        'book.title as title',
+        'book.code as code',
+        'book.author as author',
+      ])
+      .leftJoin(MembersAndBooks, 'c', 'c.bookId = book.id')
+      // .where('c.id IS NULL OR c.date_returned IS NOT NULL')
+      // .orWhere('c.id IS NULL')
+      // .addSelect('COUNT(book.code)', 'stock')
+      .addSelect(
+        'COUNT(CASE WHEN c.date_returned IS NOT NULL THEN 1 END)',
+        'stock1',
+      )
+      .addSelect('COUNT(CASE WHEN c.id IS NULL THEN 1 END)', 'stock2')
+      .groupBy('book.code')
+      .addGroupBy('book.title')
+      .addGroupBy('book.author')
       .getRawMany();
-
-    return books;
+    return books.map(({ stock1, stock2, ...remaining }) => {
+      return {
+        ...remaining,
+        stock: parseInt(stock1) + parseInt(stock2),
+      };
+    });
   }
 }

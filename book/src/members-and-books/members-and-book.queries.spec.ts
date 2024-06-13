@@ -19,20 +19,17 @@ describe('Members Queries', async () => {
     await dataSource.initialize();
   });
 
-  it('borrow', async () => {
-    const want = [
-      { members_code: 'M001', current_book_borrowed: 1 },
-      { members_code: 'M002', current_book_borrowed: 1 },
-      { members_code: 'M003', current_book_borrowed: 1 },
-    ];
+  describe('borrow', () => {
+    it('borrow from 0 books to 1', async () => {});
+
+    it('borrow when over capacity 2', async () => {});
   });
 
-  it('return ok', async () => {});
-  afterAll(async () => {
-    await dataSource.destroy();
-  });
+  describe('return', () => {
+    it('return not penalize', async () => {});
 
-  it('return penalized', async () => {});
+    it('return over 7 days', async () => {});
+  });
 
   afterAll(async () => {
     await dataSource.destroy();

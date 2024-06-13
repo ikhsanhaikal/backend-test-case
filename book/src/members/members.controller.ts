@@ -14,6 +14,7 @@ import {
   ApiNotFoundResponse,
   // ApiNotFoundResponse,
   ApiOkResponse,
+  ApiProperty,
   ApiTags,
 } from '@nestjs/swagger';
 import { MembersService } from './members.service';
@@ -22,13 +23,18 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MembersAndBooks } from 'src/members-and-books/members-and-books.entity';
 class GetMemberByIdResponse {
+  @ApiProperty({ description: 'the member based on id' })
   member: Member;
+  @ApiProperty()
+  @ApiProperty({
+    description: 'borrowed book still active based on the member id',
+  })
   books: Book[];
 }
 @Controller({ path: 'members' })
 export class MembersController {
   constructor(
-    @InjectRepository(Book)
+    @InjectRepository(MembersAndBooks)
     private membersAndBooks: Repository<MembersAndBooks>,
     private membersService: MembersService,
   ) {}
@@ -61,11 +67,11 @@ export class MembersController {
       .createQueryBuilder('c')
       .select(['b.id', 'b.title', 'b.author', 'b.code'])
       .leftJoin(Member, 'm', 'm.id = c.memberId')
-      .leftJoinAndSelect(Book, 'b', 'b.id = c.bookId')
-      .where('c.date_returned IS NULL')
-      // .orWhere('c.id IS NULL')
-      .getMany();
+      .leftJoin(Book, 'b', 'b.id = c.bookId')
+      .where('c.memberId = :memberId', { memberId: member.id })
+      .andWhere('c.date_returned IS NULL')
+      .getRawMany();
 
-    return { member, books };
+    return { ...member, books };
   }
 }
